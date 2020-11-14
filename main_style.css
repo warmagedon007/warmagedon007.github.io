@@ -14,9 +14,9 @@ a {
     color: red;
 }
 
-    a:visited {
-        color: darkred;
-    }
+a:visited {
+    color: darkred;
+}
 
 #menu li {
     display: inline;
@@ -33,7 +33,7 @@ a {
     src: url('oblivion-font.ttf')
 }
 
-h1, h2 {
+h1, h2, h3 {
     font-family: oblivion;
 }
 
@@ -44,4 +44,11 @@ h1 {
 p {
     font-family: monospace;
     margin-left: 30px;
+}
+
+#GameShow {
+    float: right;
+    background-color: darkred;
+    color: orangered;
+    padding: 5px 1em 5px 1em;
 }
