@@ -28,8 +28,13 @@ a {
     border-bottom: 3px solid red;
 }
 
+@font-face {
+    font-family: oblivion;
+    src: url('oblivion-font.ttf')
+}
+
 h1, h2 {
-    font-family: fantasy;
+    font-family: oblivion;
 }
 
 h1 {
