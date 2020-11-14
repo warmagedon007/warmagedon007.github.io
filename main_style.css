@@ -37,9 +37,19 @@ h1, h2, h3 {
     font-family: oblivion;
 }
 
-h1 {
+#header h1 {
     font-size: 75px;
+    width: 60%;
+    display: inline-block;
+    margin-right: 3%;
 }
+
+#header img {
+    width: 30%;
+    display: inline-block;
+    margin-left: 3%;
+}
+
 
 p {
     font-family: monospace;
