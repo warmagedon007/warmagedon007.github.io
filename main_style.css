@@ -1,0 +1,42 @@
+﻿body {
+    background-color: black;
+    color: crimson;
+    font: x-large serif;
+    margin: 10px 30px 5px 30px;
+}
+
+.contacts {
+    color: orangered;
+    font-family: cursive;
+}
+
+a {
+    color: red;
+}
+
+    a:visited {
+        color: darkred;
+    }
+
+#menu li {
+    display: inline;
+    padding-left: 3em;
+}
+
+#menu {
+    padding-bottom: 15px;
+    border-bottom: 3px solid red;
+}
+
+h1, h2 {
+    font-family: fantasy;
+}
+
+h1 {
+    font-size: 75px;
+}
+
+p {
+    font-family: monospace;
+    margin-left: 30px;
+}
