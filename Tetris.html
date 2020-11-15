@@ -1,0 +1,233 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Tetris</title>
+    <link rel="stylesheet" href="main_style.css" />
+    <style>
+        #GameCanvas {
+            border-bottom: 1px solid white;
+            border-left: 1px solid white;
+            border-right: 1px solid white;
+            width: 250px;
+        }
+
+        #GameCanvas td {
+            width: 25px;
+            height: 25px;
+            padding: 0px 0px 0px 0px;
+            margin: 0px 0px 0px 0px;
+            border: 0px solid white;
+        }
+
+        #start {
+            position: absolute;
+            top: 350px;
+            left: 100px;
+            font-size: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Tetris</h1>
+    </div>
+    <table id="GameCanvas"></table>
+    <button id="start">Start!</button>
+    <p>
+        Controls:<br />
+        'A', to move the piece to the left<br />
+        'D', to move the piece to the right<br />
+        'S', to move the piece down<br />
+        'W', to rotate the piece clockwise<br />
+        'X', to rotate the piece counterclockwise
+    </p>
+    <script>
+        var gl;
+        const DEBUG = false;
+        const ROWS = 20, COLS = 10;
+        const tetremino = [
+            [
+                false, false, false, false,
+                false, true, true, false,
+                false, true, true, false,
+                false, false, false, false
+            ],
+            [
+                false, false, false, false,
+                false, true, false, false,
+                true, true, true, false,
+                false, false, false, false,
+            ],
+            [
+                false, false, true, false,
+                false, true, true, false,
+                false, true, false, false,
+                false, false, false, false
+            ],
+            [
+                false, true, false, false,
+                false, true, true, false,
+                false, false, true, false,
+                false, false, false, false
+            ],
+            [
+                false, false, true, false,
+                false, false, true, false,
+                false, true, true, false,
+                false, false, false, false
+            ],
+            [
+                false, true, false, false,
+                false, true, false, false,
+                false, true, true, false,
+                false, false, false, false
+            ],
+            [
+                false, true, false, false,
+                false, true, false, false,
+                false, true, false, false,
+                false, true, false, false
+            ]
+        ]
+        var rot = Math.floor(Math.random() * 4);
+        var Rotate = function (x, y, offset = 0) {
+            switch ((rot + offset) % 4) {
+                case 0: return 4 * y + x;
+                case 1: return 12 + y - 4 * x;
+                case 2: return 15 - x - 4 * y;
+                case 3: return 3 - y + 4 * x;
+            }
+        }
+        var baffer = [];
+        var cells = [];
+        //table initialization
+        var initializationBaffer = function () {
+            for (var i = 0; i < ROWS; i++) {
+                for (var j = 0; j < COLS; j++) {
+                    baffer[i][j] = 0;
+                }
+            }
+        }
+        var table = document.getElementById("GameCanvas");
+        for (var i = 0; i < ROWS; i++) {
+            baffer[i] = [];
+            cells[i] = [];
+            var row = document.createElement("tr");
+            table.appendChild(row);
+            for (var j = 0; j < COLS; j++) {
+                baffer[i][j] = 0;
+                cells[i][j] = document.createElement("td");
+                cells[i][j].classList.add(`x${i}y${j}`)
+                row.appendChild(cells[i][j]);
+            }
+        }
+
+        var color = (Math.floor(Math.random() * 3)) + 1;
+        var playerLocation = [3, 0];
+        var piece = Math.floor(Math.random() * 7);
+        var lartch = 0;
+        //game logic
+        var mainLoop = function () {
+            if (DEBUG) console.log("blacking out everything")
+            for (var i = 0; i < ROWS; i++) {
+                for (var j = 0; j < COLS; j++) {
+                    cells[i][j].style.backgroundColor = ["black", "red", "green", "blue"][baffer[i][j]];
+                    if (DEBUG) console.log(`colorationIn${baffer[(i)][(j)]}`);
+                }
+            }
+
+            for (var i = 0; i < 4; i++) {
+                for (var j = 0; j < 4; j++) {
+                    if (tetremino[piece][Rotate(i, j)]) {
+                        cells[(j + playerLocation[1])][(i + playerLocation[0])].style.backgroundColor = ["black", "red", "green", "blue"][color];
+                        if (DEBUG) console.log(`whitening cell ${cells[(j + playerLocation[1])][(i + playerLocation[0])].classList[0]}`);
+                    }
+                }
+            }
+
+            lartch++;
+            if (lartch % 5 === 0) {
+                if (doesItFit(0, 1)) {
+                    playerLocation[1]++;
+                }
+                else {
+                    for (var i = 0; i < 4; i++) {
+                        for (var j = 0; j < 4; j++) {
+                            if (tetremino[piece][Rotate(i, j)]) {
+                                baffer[(j + playerLocation[1])][(i + playerLocation[0])] = color;
+                                if (DEBUG) console.log(`coloring on ${i + playerLocation[0]},${j + playerLocation[1]}`);
+                            }
+                        }
+                    }
+                    for (var i = playerLocation[1]; i < ROWS; i++) {
+                        var f = true;
+                        for (var j = 0; j < COLS; j++) {
+                            if (baffer[i][j] === 0) {
+                                f = false; break;
+                            }
+                        }
+                        if (f) {
+                            for (var r = i; r > 0; r--) {
+                                for (var j = 0; j < COLS; j++) {
+                                    baffer[r][j] = baffer[r - 1][j];
+                                    console.log(`r${r}c${j}`)
+                                }
+                            }
+                        }
+                    }
+                    color = (Math.floor(Math.random() * 3)) + 1;
+                    piece = Math.floor(Math.random() * 7);
+                    rot = Math.floor(Math.random() * 4);
+                    playerLocation = [3, 0];
+                    if (!doesItFit(0, 0, 0)) {
+                        window.clearInterval(gl);
+                        button.style.display = "block";
+                    }
+                }
+            }
+        }
+
+        var doesItFit = function (offsetX, offsetY, r = 0) {
+            for (var i = 0; i < 4; i++) {
+                for (var j = 0; j < 4; j++) {
+                    if (tetremino[piece][Rotate(i, j, r)]) {
+                        if (DEBUG) console.log(`loc(${playerLocation[0]},${playerLocation[1]}`);
+                        if ((playerLocation[0] + i + offsetX) < 0 || (playerLocation[0] + i + offsetX) >= COLS) return false;
+                        if ((playerLocation[1] + j + offsetY) >= ROWS) return false;
+                        if (baffer[j + offsetY + playerLocation[1]][playerLocation[0] + i + offsetX] !== 0) return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        document.addEventListener("keypress", (event) => {
+            switch (event.key) {
+                case 'd':
+                    if (doesItFit(1, 0)) playerLocation[0]++;
+                    break;
+                case 'a':
+                    if (doesItFit(-1, 0)) playerLocation[0]--;
+                    break;
+                case 'w':
+                    if (doesItFit(0, 0, 1)) rot++;
+                    break;
+                case 'x':
+                    if (doesItFit(0, 0, -1)) rot--;
+                    break;
+                case 's':
+                    if (doesItFit(0, 1)) playerLocation[1]++;
+                    break;
+            }
+        });
+
+        var button = document.getElementById("start");
+        button.addEventListener("click", () => {
+            initializationBaffer();
+            gl = window.setInterval(mainLoop, 50);
+            button.style.display = "none";
+        });
+        
+    </script>
+</body>
+</html>
