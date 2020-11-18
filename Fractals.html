@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+<head>
+    <title>Fractals</title>
+    <link rel="stylesheet" href="main_style.css" />
+    <style>
+        canvas {
+            width: 100%;
+            height: auto;
+            z-index: 1;
+        }
+        #position {
+            z-index: 2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fractals</h1>
+    <a href="https://en.wikipedia.org/wiki/Fractal">An explanation about fractals</a>
+    <p>
+        I implemented the <a href="https://en.wikipedia.org/wiki/Mandelbrot_set">Mandelbrot set</a><br />
+        <strong id="position"></strong>
+    </p>
+    <canvas>
+
+    </canvas>
+    <script>
+        const debug = true;
+        var rect = [-0.5, 0.5, 0.5, -0.5], numberOfIterations = 50;
+        const canvas = document.getElementsByTagName("canvas")[0].getContext("2d");
+        var fractal = function () {
+            for (var i = rect[0]; i < rect[1]; i += (rect[2] - rect[0]) / canvas.canvas.width) {
+                for (var j = rect[1]; j > rect[3]; j += (rect[3] - rect[1]) / canvas.canvas.height) {
+                    var c = [i, j], n = 0;
+                    while (Math.sqrt(Math.pow(c[0], 2) + Math.pow(c[1], 2)) < 2 && n < numberOfIterations) {
+                        var c = [(Math.pow(c[0], 2) - Math.pow(c[1], 2) + i), (2 * c[0] * c[1] + j)];
+                        n++;
+                    }
+                    canvas.fillStyle = "#" + ["00", "FF"][n < numberOfIterations ? 0: 1] + "0000";
+                    //canvas.fillStyle = "#" + ["000000", "111111", "222222", "333333", "444444", "555555", "666666", "777777", "888888", "999999", "AAAAAA", "BBBBBB", "CCCCCC", "DDDDDD", "FFFFFF"][Math.floor(15 * (1 - ((numberOfIterations - n) / numberOfIterations)))];
+                    //canvas.fillStyle = "#" + ["00", "11", "22", "33", "44", "55", "66", "77", "88", "99", "AA", "BB", "CC", "DD", "FF"][Math.floor(15 * (1 - ((numberOfIterations - n) / numberOfIterations)))] + "0000";
+                    canvas.fillRect((i - rect[0]) * canvas.canvas.width / (rect[2] - rect[0]), (j - rect[1]) * canvas.canvas.height / (rect[3] - rect[1]), 1, 1);
+                }
+            }
+        }
+
+        var offset = [0, 0], width = -1, height = -1;
+        document.addEventListener("mousedown", e => {
+            offset[0] = e.offsetX; offset[1] = e.offsetY;
+            width = rect[2] - rect[0]; height = rect[1] - rect[3]
+        });
+
+        document.addEventListener("mousemove", e => {
+            if (width !== -1 && height !== -1) {
+                var wOffset = (e.offsetX - offset[0]);
+                if ((wOffset < 0 && rect[2] <= 2) || (wOffset > 0 && rect[0] >= -2)) {
+                    rect[0] -= (wOffset / canvas.canvas.width) * width;
+                    if (rect[0] < -2) rect[0] = -2;
+                    rect[2] -= (wOffset / canvas.canvas.width) * width;
+                    if (rect[2] > 2) rect[2] = 2;
+                }
+                
+                var hOffset = (e.offsetY - offset[1]);
+                if ((hOffset < 0 && rect[1] <= 2) || (hOffset > 0 && rect[3] >= -2)) {
+                    rect[3] -= (hOffset / canvas.canvas.height) * height;
+                    if (rect[3] < -2) rect[3] = -2;
+                    rect[1] -= (hOffset / canvas.canvas.height) * height;
+                    if (rect[1] > 2) rect[1] = 2;
+                }
+                fractal();
+            }
+        })
+
+        document.addEventListener("mouseup", e => {
+            width = -1; height = -1;
+        })
+
+        fractal();
+
+        window.setInterval(() => {
+            document.getElementById("position").textContent = "position: " + ((rect[2] + rect[0]) / 2) + "," + ((rect[3] + rect[1]) / 2);
+            console.log("position: " + rect[0] + "," + rect[1] + "," + rect[2] + "," + rect[3]);
+        }, 50);
+        
+    </script>
+</body>
+</html>
