@@ -26,7 +26,7 @@
     </canvas>
     <script>
         const debug = true;
-        var rect = [-0.5, 0.5, 0.5, -0.5], numberOfIterations = 50;
+        var rect = [-2, 2, 2, -2], numberOfIterations = 50;
         const canvas = document.getElementsByTagName("canvas")[0].getContext("2d");
         var fractal = function () {
             for (var i = rect[0]; i < rect[1]; i += (rect[2] - rect[0]) / canvas.canvas.width) {
