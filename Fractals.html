@@ -32,7 +32,7 @@
     <h2 id="position"></h2>
     <script>
         const debug = true;
-        var offset = [0, 0], scale = 1, numberOfIterations = 4;
+        var offset = [0, 0], scale = 3, numberOfIterations = 4;
         const canvas = document.getElementsByTagName("canvas")[0].getContext("2d");
         canvas.canvas.width = innerWidth; canvas.canvas.height = innerHeight;
         canvas.canvas.width = canvas.canvas.getBoundingClientRect().width; canvas.canvas.height = canvas.canvas.getBoundingClientRect().height;
@@ -42,8 +42,8 @@
             for (var i = 0; i < canvas.canvas.width; i++) {
                 for (var j = 0; j < canvas.canvas.height; j++) {
                     var stw = screenToWorld(i, j);
-                    if ((stw[0] >= (-1 / canvas.canvas.width) && stw[0] <= (1 / canvas.canvas.width)) ||
-                        (stw[1] >= (-1 / canvas.canvas.width) && stw[1] <= (1 / canvas.canvas.width))) {
+                    if ((stw[0] >= (-scale / canvas.canvas.width) && stw[0] <= (scale / canvas.canvas.width)) ||
+                        (stw[1] >= (-scale / canvas.canvas.width) && stw[1] <= (scale / canvas.canvas.width))) {
                         canvas.fillStyle = "#FFFFFF";
                     }
                     else {
