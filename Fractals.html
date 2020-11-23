@@ -8,9 +8,14 @@
             width: 100%;
             height: auto;
             z-index: 1;
+            padding: 0px 0px 0px 0px;
+            margin: 0px 0px 0px 0px;
         }
         #position {
             z-index: 2;
+            position: absolute;
+            margin: 5px 0px 0px 5px;
+            color:orangered;
         }
     </style>
 </head>
@@ -19,69 +24,76 @@
     <a href="https://en.wikipedia.org/wiki/Fractal">An explanation about fractals</a>
     <p>
         I implemented the <a href="https://en.wikipedia.org/wiki/Mandelbrot_set">Mandelbrot set</a><br />
-        <strong id="position"></strong>
     </p>
-    <canvas>
-
-    </canvas>
+    <div>
+        <canvas>
+        </canvas>
+    </div>
+    <h2 id="position"></h2>
     <script>
         const debug = true;
-        var rect = [-2, 2, 2, -2], numberOfIterations = 50;
+        var offset = [0, 0], scale = 1, numberOfIterations = 4;
         const canvas = document.getElementsByTagName("canvas")[0].getContext("2d");
-        var fractal = function () {
-            for (var i = rect[0]; i < rect[1]; i += (rect[2] - rect[0]) / canvas.canvas.width) {
-                for (var j = rect[1]; j > rect[3]; j += (rect[3] - rect[1]) / canvas.canvas.height) {
-                    var c = [i, j], n = 0;
-                    while (Math.sqrt(Math.pow(c[0], 2) + Math.pow(c[1], 2)) < 2 && n < numberOfIterations) {
-                        var c = [(Math.pow(c[0], 2) - Math.pow(c[1], 2) + i), (2 * c[0] * c[1] + j)];
-                        n++;
+        canvas.canvas.width = innerWidth; canvas.canvas.height = innerHeight;
+        canvas.canvas.width = canvas.canvas.getBoundingClientRect().width; canvas.canvas.height = canvas.canvas.getBoundingClientRect().height;
+
+        function draw() {
+            canvas.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height);
+            for (var i = 0; i < canvas.canvas.width; i++) {
+                for (var j = 0; j < canvas.canvas.height; j++) {
+                    var stw = screenToWorld(i, j);
+                    if ((stw[0] >= (-1 / canvas.canvas.width) && stw[0] <= (1 / canvas.canvas.width)) ||
+                        (stw[1] >= (-1 / canvas.canvas.width) && stw[1] <= (1 / canvas.canvas.width))) {
+                        canvas.fillStyle = "#FFFFFF";
                     }
-                    canvas.fillStyle = "#" + ["00", "FF"][n < numberOfIterations ? 0: 1] + "0000";
-                    //canvas.fillStyle = "#" + ["000000", "111111", "222222", "333333", "444444", "555555", "666666", "777777", "888888", "999999", "AAAAAA", "BBBBBB", "CCCCCC", "DDDDDD", "FFFFFF"][Math.floor(15 * (1 - ((numberOfIterations - n) / numberOfIterations)))];
-                    //canvas.fillStyle = "#" + ["00", "11", "22", "33", "44", "55", "66", "77", "88", "99", "AA", "BB", "CC", "DD", "FF"][Math.floor(15 * (1 - ((numberOfIterations - n) / numberOfIterations)))] + "0000";
-                    canvas.fillRect((i - rect[0]) * canvas.canvas.width / (rect[2] - rect[0]), (j - rect[1]) * canvas.canvas.height / (rect[3] - rect[1]), 1, 1);
+                    else {
+                        var z = stw, n = 0;
+                        while (Math.sqrt(Math.pow(z[0], 2) + Math.pow(z[1], 2)) < 2 && n < numberOfIterations) {
+                            n++;
+                            z = [(Math.pow(z[0], 2) - Math.pow(z[1], 2) + stw[0]), (2 * z[0] * z[1] + stw[1])];
+                        }
+                        canvas.fillStyle = "#" + ["00", "11", "22", "33", "44", "55", "66", "77", "88", "99", "AA", "BB", "CC", "DD", "EE", "FF"][
+                            15 * Math.floor(1 - (numberOfIterations - n) / numberOfIterations)] + "0000";
+                    }
+                    canvas.fillRect(i, j, 1, 1);
                 }
             }
         }
 
-        var offset = [0, 0], width = -1, height = -1;
-        document.addEventListener("mousedown", e => {
-            offset[0] = e.offsetX; offset[1] = e.offsetY;
-            width = rect[2] - rect[0]; height = rect[1] - rect[3]
+        var v = [0, 0], f = false;
+        canvas.canvas.addEventListener("mousedown", e => {
+            f = true;
+            v = screenToWorld(e.offsetX, e.offsetY);
         });
 
-        document.addEventListener("mousemove", e => {
-            if (width !== -1 && height !== -1) {
-                var wOffset = (e.offsetX - offset[0]);
-                if ((wOffset < 0 && rect[2] <= 2) || (wOffset > 0 && rect[0] >= -2)) {
-                    rect[0] -= (wOffset / canvas.canvas.width) * width;
-                    if (rect[0] < -2) rect[0] = -2;
-                    rect[2] -= (wOffset / canvas.canvas.width) * width;
-                    if (rect[2] > 2) rect[2] = 2;
-                }
-                
-                var hOffset = (e.offsetY - offset[1]);
-                if ((hOffset < 0 && rect[1] <= 2) || (hOffset > 0 && rect[3] >= -2)) {
-                    rect[3] -= (hOffset / canvas.canvas.height) * height;
-                    if (rect[3] < -2) rect[3] = -2;
-                    rect[1] -= (hOffset / canvas.canvas.height) * height;
-                    if (rect[1] > 2) rect[1] = 2;
-                }
-                fractal();
+        canvas.canvas.addEventListener("mousemove", e => {
+            var p = document.getElementById("position"), rect = canvas.canvas.getBoundingClientRect();
+            p.style.left = e.pageX + "px"; p.style.top = e.pageY + "px";
+            var stw = screenToWorld(e.offsetX, e.offsetY);
+            p.textContent = stw[0].toFixed(3) + "," + stw[1].toFixed(3);
+            if (f) {
+                offset[0] -= stw[0] - v[0]; offset[1] -= stw[1] - v[1];
+                v = stw;
+                draw();
             }
-        })
+        });
 
-        document.addEventListener("mouseup", e => {
-            width = -1; height = -1;
-        })
+        canvas.canvas.addEventListener("mouseup", e => {
+            f = false;
+        });
 
-        fractal();
+        canvas.canvas.addEventListener("mouseleave", e => {
+            f = false;
+        });
 
-        window.setInterval(() => {
-            document.getElementById("position").textContent = "position: " + ((rect[2] + rect[0]) / 2) + "," + ((rect[3] + rect[1]) / 2);
-            console.log("position: " + rect[0] + "," + rect[1] + "," + rect[2] + "," + rect[3]);
-        }, 50);
-        
+        function screenToWorld(x, y) {
+            return [
+                (x - 0.5 * canvas.canvas.width) * (2 * scale / canvas.canvas.width) + offset[0],
+                (0.5 * canvas.canvas.height - y) * (2 * scale / canvas.canvas.width) + offset[1]
+            ];
+        }
+
+        draw();
     </script>
 </body>
 </html>
