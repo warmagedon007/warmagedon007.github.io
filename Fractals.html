@@ -32,7 +32,7 @@
     <h2 id="position"></h2>
     <script>
         const debug = true;
-        var offset = [0, 0], scale = 3, numberOfIterations = 4;
+        var offset = [0, 0], scale = 3, numberOfIterations = 50;
         const canvas = document.getElementsByTagName("canvas")[0].getContext("2d");
         canvas.canvas.width = innerWidth; canvas.canvas.height = innerHeight;
         canvas.canvas.width = canvas.canvas.getBoundingClientRect().width; canvas.canvas.height = canvas.canvas.getBoundingClientRect().height;
@@ -46,14 +46,15 @@
                         (stw[1] >= (-scale / canvas.canvas.width) && stw[1] <= (scale / canvas.canvas.width))) {
                         canvas.fillStyle = "#FFFFFF";
                     }
-                    else {
-                        var z = stw, n = 0;
-                        while (Math.sqrt(Math.pow(z[0], 2) + Math.pow(z[1], 2)) < 2 && n < numberOfIterations) {
+                    else { 
+                        var z = [0, 0], x = 0, y = 0, n = 0;
+                        while (x + y < 4 && n < numberOfIterations) {
                             n++;
-                            z = [(Math.pow(z[0], 2) - Math.pow(z[1], 2) + stw[0]), (2 * z[0] * z[1] + stw[1])];
+                            z[1] = (z[0] + z[0]) * z[1] + stw[1];
+                            z[0] = x - y + stw[0];
+                            x = z[0] * z[0]; y = z[1] * z[1];
                         }
-                        canvas.fillStyle = "#" + ["00", "11", "22", "33", "44", "55", "66", "77", "88", "99", "AA", "BB", "CC", "DD", "EE", "FF"][
-                            15 * Math.floor(1 - (numberOfIterations - n) / numberOfIterations)] + "0000";
+                        canvas.fillStyle = "#" + ["00", "11", "22", "33", "44", "55", "66", "77", "88", "99", "AA", "BB", "CC", "DD", "EE", "FF"][Math.floor(15 * (1 + ((n - numberOfIterations) / numberOfIterations)))] + "0000";
                     }
                     canvas.fillRect(i, j, 1, 1);
                 }
