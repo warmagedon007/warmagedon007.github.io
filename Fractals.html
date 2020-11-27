@@ -10,12 +10,14 @@
             z-index: 1;
             padding: 0px 0px 0px 0px;
             margin: 0px 0px 0px 0px;
+            position: absolute;
         }
         #position {
             z-index: 2;
             position: absolute;
             margin: 5px 0px 0px 5px;
             color:orangered;
+            user-select: none;
         }
     </style>
 </head>
@@ -26,19 +28,23 @@
         I implemented the <a href="https://en.wikipedia.org/wiki/Mandelbrot_set">Mandelbrot set</a><br />
     </p>
     <div>
-        <canvas>
-        </canvas>
+        <canvas id="fractal"></canvas>
+        <canvas id="userC"></canvas>
     </div>
     <h2 id="position"></h2>
     <script>
         const debug = true;
         var offset = [0, 0], scale = 3, numberOfIterations = 50;
         const canvas = document.getElementsByTagName("canvas")[0].getContext("2d");
+        console.log(canvas.canvas.id);
         canvas.canvas.width = innerWidth; canvas.canvas.height = innerHeight;
         canvas.canvas.width = canvas.canvas.getBoundingClientRect().width; canvas.canvas.height = canvas.canvas.getBoundingClientRect().height;
-
+        const Ucanvas = document.getElementsByTagName("canvas")[1].getContext("2d");
+        Ucanvas.canvas.width = canvas.canvas.width; Ucanvas.canvas.height = canvas.canvas.height;
+        Ucanvas.strokeStyle = "#FF00FF";
         function draw() {
             canvas.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height);
+            Ucanvas.clearRect(0, 0, Ucanvas.canvas.width, Ucanvas.canvas.height);
             for (var i = 0; i < canvas.canvas.width; i++) {
                 for (var j = 0; j < canvas.canvas.height; j++) {
                     var stw = screenToWorld(i, j);
@@ -61,30 +67,32 @@
             }
         }
 
-        var v = [0, 0], f = false;
-        canvas.canvas.addEventListener("mousedown", e => {
+        var ps, v, f = false;
+        Ucanvas.canvas.addEventListener("mousedown", e => {
             f = true;
             v = screenToWorld(e.offsetX, e.offsetY);
+            ps = [e.offsetX, e.offsetY];
         });
 
-        canvas.canvas.addEventListener("mousemove", e => {
+        Ucanvas.canvas.addEventListener("mousemove", e => {
             var p = document.getElementById("position"), rect = canvas.canvas.getBoundingClientRect();
             p.style.left = e.pageX + "px"; p.style.top = e.pageY + "px";
             var stw = screenToWorld(e.offsetX, e.offsetY);
             p.textContent = stw[0].toFixed(3) + "," + stw[1].toFixed(3);
             if (f) {
+                Ucanvas.clearRect(0, 0, Ucanvas.canvas.width, Ucanvas.canvas.height);
+                Ucanvas.beginPath();
+                Ucanvas.moveTo(ps[0], ps[1]);
+                Ucanvas.lineTo(e.offsetX, e.offsetY);
+                Ucanvas.stroke();
                 offset[0] -= stw[0] - v[0]; offset[1] -= stw[1] - v[1];
                 v = stw;
-                draw();
             }
         });
 
-        canvas.canvas.addEventListener("mouseup", e => {
+        Ucanvas.canvas.addEventListener("mouseup", e => {
             f = false;
-        });
-
-        canvas.canvas.addEventListener("mouseleave", e => {
-            f = false;
+            draw();
         });
 
         function screenToWorld(x, y) {
