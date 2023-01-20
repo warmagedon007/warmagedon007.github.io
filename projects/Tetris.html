@@ -98,24 +98,24 @@
                 case 3: return 3 - y + 4 * x;
             }
         }
-        var baffer = [];
+        var buffer = [];
         var cells = [];
         //table initialization
-        var initializationBaffer = function () {
+        var initializationBuffer = function () {
             for (var i = 0; i < ROWS; i++) {
                 for (var j = 0; j < COLS; j++) {
-                    baffer[i][j] = 0;
+                    buffer[i][j] = 0;
                 }
             }
         }
         var table = document.getElementById("GameCanvas");
         for (var i = 0; i < ROWS; i++) {
-            baffer[i] = [];
+            buffer[i] = [];
             cells[i] = [];
             var row = document.createElement("tr");
             table.appendChild(row);
             for (var j = 0; j < COLS; j++) {
-                baffer[i][j] = 0;
+                buffer[i][j] = 0;
                 cells[i][j] = document.createElement("td");
                 cells[i][j].classList.add(`x${i}y${j}`)
                 row.appendChild(cells[i][j]);
@@ -125,14 +125,14 @@
         var color = (Math.floor(Math.random() * 3)) + 1;
         var playerLocation = [3, 0];
         var piece = Math.floor(Math.random() * 7);
-        var lartch = 0;
+        var latch = 0;
         //game logic
         var mainLoop = function () {
             if (DEBUG) console.log("blacking out everything")
             for (var i = 0; i < ROWS; i++) {
                 for (var j = 0; j < COLS; j++) {
-                    cells[i][j].style.backgroundColor = ["black", "red", "green", "blue"][baffer[i][j]];
-                    if (DEBUG) console.log(`colorationIn${baffer[(i)][(j)]}`);
+                    cells[i][j].style.backgroundColor = ["black", "red", "green", "blue"][buffer[i][j]];
+                    if (DEBUG) console.log(`colorationIn${buffer[(i)][(j)]}`);
                 }
             }
 
@@ -145,8 +145,8 @@
                 }
             }
 
-            lartch++;
-            if (lartch % 5 === 0) {
+            latch++;
+            if (latch % 5 === 0) {
                 if (doesItFit(0, 1)) {
                     playerLocation[1]++;
                 }
@@ -154,7 +154,7 @@
                     for (var i = 0; i < 4; i++) {
                         for (var j = 0; j < 4; j++) {
                             if (tetremino[piece][Rotate(i, j)]) {
-                                baffer[(j + playerLocation[1])][(i + playerLocation[0])] = color;
+                                buffer[(j + playerLocation[1])][(i + playerLocation[0])] = color;
                                 if (DEBUG) console.log(`coloring on ${i + playerLocation[0]},${j + playerLocation[1]}`);
                             }
                         }
@@ -162,14 +162,14 @@
                     for (var i = playerLocation[1]; i < ROWS; i++) {
                         var f = true;
                         for (var j = 0; j < COLS; j++) {
-                            if (baffer[i][j] === 0) {
+                            if (buffer[i][j] === 0) {
                                 f = false; break;
                             }
                         }
                         if (f) {
                             for (var r = i; r > 0; r--) {
                                 for (var j = 0; j < COLS; j++) {
-                                    baffer[r][j] = baffer[r - 1][j];
+                                    buffer[r][j] = buffer[r - 1][j];
                                     console.log(`r${r}c${j}`)
                                 }
                             }
@@ -194,7 +194,7 @@
                         if (DEBUG) console.log(`loc(${playerLocation[0]},${playerLocation[1]}`);
                         if ((playerLocation[0] + i + offsetX) < 0 || (playerLocation[0] + i + offsetX) >= COLS) return false;
                         if ((playerLocation[1] + j + offsetY) >= ROWS) return false;
-                        if (baffer[j + offsetY + playerLocation[1]][playerLocation[0] + i + offsetX] !== 0) return false;
+                        if (buffer[j + offsetY + playerLocation[1]][playerLocation[0] + i + offsetX] !== 0) return false;
                     }
                 }
             }
@@ -223,11 +223,10 @@
 
         var button = document.getElementById("start");
         button.addEventListener("click", () => {
-            initializationBaffer();
+            initializationBuffer();
             gl = window.setInterval(mainLoop, 50);
             button.style.display = "none";
         });
-        
     </script>
 </body>
 </html>
